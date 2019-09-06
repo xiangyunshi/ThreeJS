@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script src="three.min.js"></script>
+	<style>
+      body { margin: 0; }
+    </style>
+</head>
+<body>
+	
+
+	<script id="vertexShader" type="x-shader/x-vertex">
+    varying vec2 vUv;
+
+	    void main() {
+	        vUv = uv;
+
+	        gl_Position =   projectionMatrix * 
+	                        modelViewMatrix * 
+	                        vec4(position,1.0);
+	    }
+	</script>
+
+	<script id="fragmentShader" type="x-shader/x-fragment">
+    uniform sampler2D texture1;
+
+    varying vec2 vUv;
+
+	    void main() {
+	        gl_FragColor = texture2D(texture1, vUv); // Displays Nothing
+	        //gl_FragColor = vec4(0.5, 0.2, 1.0, 1.0); // Works; Displays Flat Color -->
+	    }
+	</script>
+
+	<script>
+    // Initialize WebGL Renderer
+    var renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild( renderer.domElement );
+
+
+    // Initialize Scenes
+    var scene = new THREE.Scene();
+
+    // Initialize Camera
+    var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 100);
+    camera.position.z = 10;
+
+    // Create Light
+    var light = new THREE.PointLight(0xFFFFFF);
+    light.position.set(0, 0, 500);
+    scene.add(light);
+
+    // Create Ball
+    var vertShader = document.getElementById('vertexShader').innerHTML;
+    var fragShader = document.getElementById('fragmentShader').innerHTML;
+
+    // var texture = new THREE.TextureLoader().load( 'crate.png' );
+    var uniforms = {
+    texture1: { type: "t", value: new THREE.TextureLoader().load('crate.png') }
+	};
+	console.log(uniforms);
+	
+
+    var material = new THREE.ShaderMaterial({
+        uniforms: uniforms,
+        vertexShader: vertShader,
+        fragmentShader: fragShader
+    });
+
+    var geometry = new THREE.BoxGeometry( 2, 2, 2 );
+	var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+	var cube = new THREE.Mesh( geometry, material );
+    scene.add(cube);
+
+    // Render the Scene
+    renderer.render(scene, camera);
+
+	</script>
+</body>
+</html>
